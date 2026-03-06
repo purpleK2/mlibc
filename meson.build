@@ -290,6 +290,8 @@ elif host_machine.system() == 'menix'
 elif host_machine.system() == 'demo'
 	subdir('sysdeps/demo')
 # ANCHOR_END: demo-sysdeps
+elif host_machine.system() == 'purpleK2'
+	subdir('sysdeps/purpleK2')
 else
 	error('No sysdeps defined for OS: ' + host_machine.system())
 endif
