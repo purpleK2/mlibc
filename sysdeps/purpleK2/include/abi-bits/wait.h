@@ -1,1 +1,1 @@
-abis/linux/wait.h
+../../../../abis/linux/wait.h

@@ -1,1 +1,1 @@
-abis/linux/riscv-hwprobe.h
+../../../../abis/linux/riscv-hwprobe.h

@@ -1,1 +1,1 @@
-abis/linux/ptrace.h
+../../../../abis/linux/ptrace.h

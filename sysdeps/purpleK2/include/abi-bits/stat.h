@@ -1,1 +1,1 @@
-abis/linux/stat.h
+../../../../abis/linux/stat.h
