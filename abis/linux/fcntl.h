@@ -108,7 +108,7 @@
 #define AT_SYMLINK_FOLLOW 0x400
 #define AT_EACCESS 0x200
 
-#if defined(_GNU_SOURCE)
+#if defined(_GNU_SOURCE) || defined(__MLIBC_BUILDING_MLIBC)
 #define AT_NO_AUTOMOUNT 0x800
 #define AT_EMPTY_PATH 0x1000
 #endif

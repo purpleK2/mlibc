@@ -2,24 +2,19 @@
 #include <dirent.h>
 #include <errno.h>
 #include <fcntl.h>
-#include <limits.h>
 #include <mlibc/all-sysdeps.hpp>
 #include <mlibc/debug.hpp>
 #include <sys/syscall.h>
 #include <sys/syscall_nums.h>
-#include <sys/ioctl_ethereal.h>
-#include <stdint.h>
 #include <stdlib.h>
 #include <sys/select.h>
 #include <sys/types.h>
 #include <sys/stat.h>
-#include <sys/ptrace.h>
 #include <termios.h>
 #include <string.h>
 #include <sys/mman.h>
 #include <unistd.h>
 #include <mlibc/arch-defs.hpp>
-#include <asm/ioctls.h>
 
 DEFINE_SYSCALL1(exit, SYS_EXIT, int)
 DEFINE_SYSCALL3(open, SYS_OPEN, const char *, int, mode_t)
@@ -52,7 +47,7 @@ DEFINE_SYSCALL3(mprotect, SYS_MPROTECT, void *, size_t, int)
 DEFINE_SYSCALL3(msync, SYS_MSYNC, void *, size_t, int)
 DEFINE_SYSCALL2(pipe, SYS_PIPE, int *, int)
 DEFINE_SYSCALL2(nanosleep, SYS_NANOSLEEP, struct timespec *, struct timespec *)
-DEFINE_SYSCALL3(execve, SYS_EXECVE, const char *, char *const *, char *const *)
+DEFINE_SYSCALL3(execve, SYS_EXECVE, const char *, const char**, const char**)
 DEFINE_SYSCALL3(waitpid, SYS_WAITPID, pid_t, int *, int)
 DEFINE_SYSCALL4(wait4, SYS_WAIT4, pid_t, int *, int, struct rusage *)
 DEFINE_SYSCALL0(getppid, SYS_GETPPID)
@@ -81,9 +76,9 @@ namespace mlibc {
         __builtin_unreachable();
     }
 
-    bool sys_isatty(int fd) {
+    int sys_isatty(int fd) {
         struct termios t;
-        return __syscall_ioctl(fd, TCGETS, &t) == 0;
+        return -ENOSYS;
     }
 
     int sys_read(int fd, void *buf, size_t n, ssize_t *bytes_read) {
@@ -109,7 +104,7 @@ namespace mlibc {
     }
 
     int sys_seek(int fd, off_t offset, int whence, off_t *new_offset) {
-        long error = __syscall_lseek(fd, offset, whence);
+        long error = __syscall_seek(fd, offset, whence);
 
         if (error < 0) {
             return -error;
@@ -147,11 +142,11 @@ namespace mlibc {
     }
 
     int sys_mkdir(const char *path, mode_t mode) {
-        return -__syscall_mkdir(path, mode);
+        return -ENOSYS;
     }
 
     int sys_vm_map(void *addr, size_t size, int prot, int flags, int fd, off_t offset, void** window) {
-        void *result = __syscall_mmap(addr, size, prot, flags, fd, offset);
+        void *result = (void*)__syscall_mmap(addr, size, prot, flags, fd, offset);
 
         if (result == MAP_FAILED) {
             return -errno;
@@ -178,11 +173,11 @@ namespace mlibc {
     }
 
     int sys_tcb_set(void *pointer) {
-        return __syscall_settls((uintptr_t)pointer);
+        return __syscall_settls(pointer);
     }
 
     int sys_waitpid(pid_t pid, int *status, int flags, struct rusage *ru, pid_t *ret_pid) {
-        long error = __syscall_wait(pid, status, flags);
+        long error = __syscall_waitpid(pid, status, flags);
 
         if (error < 0)  {
             return -error;
@@ -193,7 +188,7 @@ namespace mlibc {
     }
 
     int sys_execve(const char *path, char *const argv[], char *const envp[]) {
-        long error = __syscall_execve(path, (const char**)argv, (char**)envp);
+        long error = __syscall_execve((char*)path, (const char**)argv, (const char**)envp);
         if (error < 0) {
             return -error;
         }
@@ -219,7 +214,7 @@ namespace mlibc {
     }
 
     int sys_dup(int fd, int flags, int *newfd) {
-        int ret = __syscall_dup2(fd, -1);
+        int ret = __syscall_dup(fd, -1);
         if (ret < 0) return -ret;
         *newfd = ret;
         return 0;

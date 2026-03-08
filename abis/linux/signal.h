@@ -159,7 +159,7 @@ typedef void (*__sighandler) (int);
 #define SIGCANCEL 32
 #define SIGTIMER  33
 
-#if __MLIBC_XOPEN
+#if __MLIBC_XOPEN || defined(__MLIBC_BUILDING_MLIBC)
 #define MINSIGSTKSZ 2048
 #define SIGSTKSZ 8192
 #define SS_ONSTACK 1
@@ -198,7 +198,7 @@ typedef struct __stack {
 #define ILL_BADIADDR 9
 
 #define _NSIG 65
-#if defined(_DEFAULT_SOURCE)
+#if defined(_DEFAULT_SOURCE) || defined(__MLIBC_BUILDING_MLIBC)
 #define NSIG _NSIG
 #endif
 
