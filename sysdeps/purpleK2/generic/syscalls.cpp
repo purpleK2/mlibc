@@ -15,6 +15,7 @@
 #include <sys/mman.h>
 #include <unistd.h>
 #include <mlibc/arch-defs.hpp>
+#include <sys/ioctl.h>
 
 DEFINE_SYSCALL1(exit, SYS_EXIT, int)
 DEFINE_SYSCALL3(open, SYS_OPEN, const char *, int, mode_t)
@@ -61,8 +62,8 @@ DEFINE_SYSCALL3(poll, SYS_POLL, struct pollfd *, size_t, int)
 
 namespace mlibc {
     void sys_libc_log(const char *message) {
-        __syscall_write(2, (char*)message, strlen(message));
-        __syscall_write(2, "\n", 1);
+        __syscall_write(3, (char*)message, strlen(message));
+        __syscall_write(3, "\n", 1);
     }
 
     void sys_libc_panic() {
@@ -77,8 +78,14 @@ namespace mlibc {
     }
 
     int sys_isatty(int fd) {
-        struct termios t;
-        return -ENOSYS;
+        int is_tty = 0;
+        long ret = __syscall_ioctl(fd, IOCTLTTYIS, &is_tty);
+
+        if (ret < 0) {
+            return ENOTTY;
+        }
+
+        return 0;
     }
 
     int sys_read(int fd, void *buf, size_t n, ssize_t *bytes_read) {
@@ -125,7 +132,7 @@ namespace mlibc {
         return 0;
     }
 
-    int sys_futex_wake(int *futex, int count) {
+    int sys_futex_wake(int *futex, bool wake_all) {
         return -ENOSYS;
     }
     
@@ -133,7 +140,7 @@ namespace mlibc {
         return -ENOSYS;
     }
 
-    int sys_clock_get(clockid_t clock_id, struct timespec *tp) {
+    int sys_clock_get(int, long*, long*) {
         return -ENOSYS;
     }
 
