@@ -57,5 +57,6 @@
 #define SYS_GETCWD     53
 #define SYS_FUTEX_WAIT 54
 #define SYS_FUTEX_WAKE 55
+#define SYS_CHDIR      56
 
 #endif /* _SYS_SYSCALL_NUMS_H */

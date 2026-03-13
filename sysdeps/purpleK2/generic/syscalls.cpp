@@ -88,6 +88,7 @@ DEFINE_SYSCALL2(getcwd, SYS_GETCWD, char *, size_t)
 
 DEFINE_SYSCALL3(futex_wait, SYS_FUTEX_WAIT, int *, int, const struct timespec *)
 DEFINE_SYSCALL2(futex_wake, SYS_FUTEX_WAKE, int *, int)
+DEFINE_SYSCALL1(chdir, SYS_CHDIR, const char *)
 
 namespace mlibc {
 
@@ -499,6 +500,10 @@ namespace mlibc {
 
     int sys_getcwd(char *buffer, size_t size) {
         return __syscall_getcwd(buffer, size);
+    }
+
+    int sys_chdir(const char *path) {
+        return __syscall_chdir(path);
     }
 
 } // namespace mlibc
