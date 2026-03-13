@@ -54,5 +54,6 @@
 #define SYS_GETSID    50
 #define SYS_SETTLS    51
 #define SYS_POLL      52
+#define SYS_GETCWD    53
 
 #endif /* _SYS_SYSCALL_NUMS_H */

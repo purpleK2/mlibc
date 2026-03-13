@@ -1,3 +1,4 @@
+#include "mlibc/posix-sysdeps.hpp"
 #include <bits/ensure.h>
 #include <dirent.h>
 #include <errno.h>
@@ -82,6 +83,8 @@ DEFINE_SYSCALL2(umount, SYS_UMOUNT, const char *, int)
 DEFINE_SYSCALL1(opendir, SYS_OPEN_DIR, const char *)
 DEFINE_SYSCALL3(readdir, SYS_READ_DIR, int, void *, size_t)
 DEFINE_SYSCALL1(closedir, SYS_CLOSE_DIR, int)
+
+DEFINE_SYSCALL2(getcwd, SYS_GETCWD, char *, size_t)
 
 namespace mlibc {
 
@@ -494,6 +497,10 @@ namespace mlibc {
 
     int sys_futex_tid() {
         return 1;
+    }
+
+    int sys_getcwd(char *buffer, size_t size) {
+        return __syscall_getcwd(buffer, size);
     }
 
 } // namespace mlibc
