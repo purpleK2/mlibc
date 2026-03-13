@@ -86,6 +86,9 @@ DEFINE_SYSCALL1(closedir, SYS_CLOSE_DIR, int)
 
 DEFINE_SYSCALL2(getcwd, SYS_GETCWD, char *, size_t)
 
+DEFINE_SYSCALL3(futex_wait, SYS_FUTEX_WAIT, int *, int, const struct timespec *)
+DEFINE_SYSCALL2(futex_wake, SYS_FUTEX_WAKE, int *, int)
+
 namespace mlibc {
 
     void sys_libc_log(const char *message) {
@@ -483,16 +486,11 @@ namespace mlibc {
     }
 
     int sys_futex_wake(int *futex, bool wake_all) {
-        (void)futex;
-        (void)wake_all;
-        return ENOSYS;
+        return __syscall_futex_wake(futex, wake_all ? 1 : 0);
     }
     
     int sys_futex_wait(int *futex, int expected, const struct timespec *timeout) {
-        (void)futex;
-        (void)expected;
-        (void)timeout;
-        return ENOSYS;
+        return __syscall_futex_wait(futex, expected, timeout);
     }
 
     int sys_futex_tid() {
