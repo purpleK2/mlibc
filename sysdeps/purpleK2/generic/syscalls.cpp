@@ -1,3 +1,4 @@
+#include "mlibc/internal-sysdeps.hpp"
 #include "mlibc/posix-sysdeps.hpp"
 #include <bits/ensure.h>
 #include <dirent.h>
@@ -89,6 +90,9 @@ DEFINE_SYSCALL2(getcwd, SYS_GETCWD, char *, size_t)
 DEFINE_SYSCALL3(futex_wait, SYS_FUTEX_WAIT, int *, int, const struct timespec *)
 DEFINE_SYSCALL2(futex_wake, SYS_FUTEX_WAKE, int *, int)
 DEFINE_SYSCALL1(chdir, SYS_CHDIR, const char *)
+DEFINE_SYSCALL2(stat, SYS_STAT, const char *, struct stat *)
+DEFINE_SYSCALL2(setstat, SYS_SETSTAT, const char *, const struct stat *)
+DEFINE_SYSCALL3(getfdpath, SYS_GETFDPATH, int, char *, size_t)
 
 namespace mlibc {
 
@@ -98,13 +102,13 @@ namespace mlibc {
     }
 
     void sys_libc_panic() {
-        sys_libc_log("mlibc panic detected!");
+        sys_libc_log("\x1f[1;31mmlibc panic detected!\x1f[0m");
         sys_exit(1);
     }
 
     void sys_exit(int status) {
         __syscall_exit(status);
-        sys_libc_log("mlibc: exit syscall returned unexpectedly");
+        sys_libc_log("\x1f[1;31mmlibc: exit syscall returned unexpectedly\x1f[0m");
         sys_libc_panic();
         __builtin_unreachable();
     }
@@ -344,7 +348,7 @@ namespace mlibc {
         if (error < 0) {
             return -error;
         }
-        return 0;
+        return -error;
     }
 
     int sys_waitpid(pid_t pid, int *status, int flags, struct rusage *ru, pid_t *ret_pid) {
@@ -504,6 +508,19 @@ namespace mlibc {
 
     int sys_chdir(const char *path) {
         return __syscall_chdir(path);
+    }
+
+    int sys_stat(fsfd_target fsfdt, int fd, const char *path, int flags, struct stat *statbuf) {
+        if (fsfdt == fsfd_target::path) {
+            return __syscall_stat(path, statbuf);
+        } else if (fsfdt == fsfd_target::fd) {
+            char path[PATH_MAX];
+            long ret = __syscall_getfdpath(fd, path, sizeof(path));
+            if (ret < 0) return -ret;
+            return __syscall_stat(path, statbuf);
+        } else {
+            return EINVAL;
+        }
     }
 
 } // namespace mlibc

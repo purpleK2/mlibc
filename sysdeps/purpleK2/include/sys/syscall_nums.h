@@ -58,5 +58,8 @@
 #define SYS_FUTEX_WAIT 54
 #define SYS_FUTEX_WAKE 55
 #define SYS_CHDIR      56
+#define SYS_STAT       57
+#define SYS_SETSTAT    58
+#define SYS_GETFDPATH  59
 
 #endif /* _SYS_SYSCALL_NUMS_H */
