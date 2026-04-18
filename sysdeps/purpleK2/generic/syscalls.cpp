@@ -4,11 +4,13 @@
 #include <dirent.h>
 #include <errno.h>
 #include <fcntl.h>
+#include <mlibc-config.h>
 #include <mlibc/all-sysdeps.hpp>
 #include <mlibc/debug.hpp>
 #include <sys/syscall.h>
 #include <sys/syscall_nums.h>
 #include <stdlib.h>
+#include <stdarg.h>
 #include <sys/select.h>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -524,3 +526,20 @@ namespace mlibc {
     }
 
 } // namespace mlibc
+
+#if !__MLIBC_GLIBC_OPTION
+extern "C" int ioctl(int fd, unsigned long request, ...) {
+    va_list args;
+    va_start(args, request);
+    void *arg = va_arg(args, void *);
+    va_end(args);
+
+    int result = 0;
+    if (int e = mlibc::sys_ioctl(fd, request, arg, &result); e) {
+        errno = e;
+        return -1;
+    }
+
+    return result;
+}
+#endif

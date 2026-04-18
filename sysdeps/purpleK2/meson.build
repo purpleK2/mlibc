@@ -5,6 +5,14 @@ sysdep_supported_options = {
 
 if not no_headers
 	install_headers(
+		'include/sys/syscall.h',
+		'include/sys/syscall_nums.h',
+		'include/sys/ioctl.h',
+		'include/sys/meowdev.h',
+		subdir: 'sys'
+	)
+
+	install_headers(
 		'include/abi-bits/auxv.h',
 		'include/abi-bits/blkcnt_t.h',
 		'include/abi-bits/blksize_t.h',
